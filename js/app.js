@@ -20,17 +20,6 @@ window.FC = window.FC || {};
     $("#home-btn").addEventListener("click", FC.ui.end.goHome);
     $("#quit-btn").addEventListener("click", FC.ui.end.goHome);
 
-    $("#reset-btn").addEventListener("click", () => { $("#reset-modal").hidden = false; });
-    $("#modal-cancel").addEventListener("click", () => { $("#reset-modal").hidden = true; });
-    $("#modal-confirm").addEventListener("click", () => {
-      FC.storage.reset();
-      $("#reset-modal").hidden = true;
-      FC.ui.home.renderHomeStats();
-    });
-    $("#reset-modal").addEventListener("click", (e) => {
-      if (e.target === $("#reset-modal")) $("#reset-modal").hidden = true;
-    });
-
     FC.ui.home.renderHomeStats();
   }
 

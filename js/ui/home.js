@@ -82,6 +82,7 @@ FC.ui.home = (function () {
     let learned = 0;
     for (const deck of FC.decks.list) {
       for (const c of FC.COUNTRIES) {
+        if (deck.available && !deck.available(c)) continue;
         for (const dir of deck.directions) {
           if (FC.srs.getState(deck.id, c.iso, dir.id).reps >= 1) learned++;
         }
@@ -92,7 +93,9 @@ FC.ui.home = (function () {
     const deck = currentDeck();
     const dirs = currentDirectionIds();
     const countries = FC.COUNTRIES.filter(
-      (c) => FC.settings.continent === "all" || c.continent === FC.settings.continent
+      (c) =>
+        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        (!deck.available || deck.available(c))
     );
     let due = 0;
     let nextDue = Infinity;
@@ -114,7 +117,9 @@ FC.ui.home = (function () {
     const deck = currentDeck();
     const dirs = currentDirectionIds();
     const countries = FC.COUNTRIES.filter(
-      (c) => FC.settings.continent === "all" || c.continent === FC.settings.continent
+      (c) =>
+        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        (!deck.available || deck.available(c))
     );
     let nextDue = Infinity;
     for (const c of countries) {

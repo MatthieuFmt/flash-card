@@ -4,7 +4,7 @@ FC.ui = FC.ui || {};
 FC.ui.confetti = (function () {
   const canvas = document.getElementById("confetti");
   const ctx = canvas.getContext("2d");
-  const COLORS = ["#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff", "#ff8fab", "#a06cd5", "#ff9f43"];
+  const COLORS = ["#6366f1", "#8b5cf6", "#22d3ee", "#34d399", "#fbbf24", "#fb7185", "#a78bfa"];
   let particles = [];
   let running = false;
 

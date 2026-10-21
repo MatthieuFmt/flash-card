@@ -34,7 +34,7 @@ FC.COUNTRIES = [
   {"iso":"MW","name":"Malawi","capital":["Lilongwe"],"continent":"Afrique"},
   {"iso":"ML","name":"Mali","capital":["Bamako"],"continent":"Afrique"},
   {"iso":"MA","name":"Maroc","capital":["Rabat"],"continent":"Afrique"},
-  {"iso":"MU","name":"Maurice","capital":["Port-Louis"],"continent":"Afrique"},
+  {"iso":"MU","name":"Île Maurice","capital":["Port-Louis"],"continent":"Afrique","aliases":["Maurice"]},
   {"iso":"MR","name":"Mauritanie","capital":["Nouakchott"],"continent":"Afrique"},
   {"iso":"MZ","name":"Mozambique","capital":["Maputo"],"continent":"Afrique"},
   {"iso":"NA","name":"Namibie","capital":["Windhoek"],"continent":"Afrique"},

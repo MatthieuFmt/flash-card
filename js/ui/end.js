@@ -8,6 +8,12 @@ FC.ui.end = (function () {
   function appendPayload(container, className, payload) {
     const span = document.createElement("span");
     span.className = className;
+    if (payload.svg) {
+      const wrap = document.createElement("span");
+      wrap.className = "wi-map";
+      wrap.innerHTML = payload.svg;
+      span.appendChild(wrap);
+    }
     if (payload.img) {
       const img = document.createElement("img");
       img.className = "wi-img";

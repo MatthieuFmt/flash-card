@@ -31,7 +31,9 @@ FC.ui.game = (function () {
 
   function buildQueue() {
     const countries = FC.COUNTRIES.filter(
-      (c) => FC.settings.continent === "all" || c.continent === FC.settings.continent
+      (c) =>
+        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        (!deck().available || deck().available(c))
     );
     const dirs = directionIds();
     const cards = [];
@@ -84,7 +86,6 @@ FC.ui.game = (function () {
     const dir = directionById(item.dir);
     const country = item.country;
     const front = dir.front(country);
-    const back = dir.back(country);
     const badge = `${U.CONTINENT_EMOJI[country.continent]} ${country.continent}`;
     const total = answered + queue.length;
 
@@ -98,7 +99,7 @@ FC.ui.game = (function () {
     card.classList.remove("flipped", "shake");
     $("#card-badge").textContent = badge;
     $("#card-badge-back").textContent = badge;
-    setCardMedia("#card-flag-img-front", "#card-flag-front", front);
+    setCardMedia("#card-flag-img-front", "#card-flag-front", "#card-map-front", front);
     $("#card-question-label").textContent = dir.questionLabel;
     $("#card-question").textContent = front.text;
     $("#card-question").style.display = front.text ? "" : "none";
@@ -125,21 +126,83 @@ FC.ui.game = (function () {
     const item = queue[0];
     if (!item) return;
     const dir = directionById(item.dir);
-    const back = dir.back(item.country);
-    setCardMedia("#card-flag-img-back", "#card-flag-back", back);
+    const country = item.country;
+    const back = dir.back(country);
     $("#card-answer-label").textContent = dir.answerLabel;
     $("#card-answer").textContent = back.text;
     $("#card-answer").style.display = back.text ? "" : "none";
+
+    const flag = $("#country-flag");
+    flag.src = U.flagUrl(country.iso);
+    flag.hidden = false;
+
+    const mapEl = $("#country-map");
+    const svg = U.worldSvg(country.iso, true);
+    if (svg) {
+      mapEl.innerHTML = svg;
+      mapEl.hidden = false;
+    } else {
+      mapEl.hidden = true;
+      mapEl.innerHTML = "";
+    }
+
+    const infoEl = $("#country-info");
+    const info = FC.COUNTRY_INFO && FC.COUNTRY_INFO[country.iso];
+    if (info) {
+      infoEl.innerHTML = "";
+      const chips = [];
+      if (info.languages) {
+        let langText = info.languages.join(" · ");
+        if (info.languages.length > 3) {
+          langText = info.languages.slice(0, 3).join(" · ") + ` +${info.languages.length - 3} autres`;
+        }
+        chips.push(["🗣️", langText]);
+      }
+      if (info.currency) {
+        const curs = info.currency.split(", ");
+        let curText = curs.join(", ");
+        if (curs.length > 2) {
+          curText = curs.slice(0, 2).join(", ") + ` +${curs.length - 2} autres`;
+        }
+        chips.push(["💰", curText]);
+      }
+      if (info.population) chips.push(["👥", info.population]);
+      for (const [icon, text] of chips) {
+        const span = document.createElement("span");
+        span.className = "ci-chip";
+        const i = document.createElement("span");
+        i.className = "ci-icon";
+        i.textContent = icon;
+        span.appendChild(i);
+        span.appendChild(document.createTextNode(" " + text));
+        infoEl.appendChild(span);
+      }
+      infoEl.hidden = chips.length === 0;
+    } else {
+      infoEl.hidden = true;
+    }
   }
 
-  function setCardMedia(imgSel, emojiSel, payload) {
+  function setCardMedia(imgSel, emojiSel, mapSel, payload) {
     const img = $(imgSel);
     const emoji = $(emojiSel);
-    if (payload.img) {
+    const map = $(mapSel);
+    if (payload.svg) {
+      map.innerHTML = payload.svg;
+      map.hidden = false;
+      img.hidden = true;
+      img.removeAttribute("src");
+      emoji.hidden = true;
+      emoji.textContent = "";
+    } else if (payload.img) {
+      map.hidden = true;
+      map.innerHTML = "";
       img.src = payload.img;
       img.hidden = false;
       emoji.hidden = true;
     } else {
+      map.hidden = true;
+      map.innerHTML = "";
       img.hidden = true;
       img.removeAttribute("src");
       emoji.hidden = false;
@@ -167,9 +230,12 @@ FC.ui.game = (function () {
       .map((r) => {
         const dir = directionById(r.item.dir);
         const st = FC.srs.getState(deck().id, r.item.country.iso, r.item.dir);
+        const q = dir.front(r.item.country);
+        const a = dir.back(r.item.country);
+        const dupMedia = (q.img && q.img === a.img) || (q.svg && a.svg);
         return {
-          question: dir.front(r.item.country),
-          answer: dir.back(r.item.country),
+          question: q,
+          answer: dupMedia ? { text: a.text, emoji: a.emoji } : a,
           whenText: U.humanize(st.due - Date.now())
         };
       });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capitales du Monde — Flash Cards</title>
+  <title>GéoFlash — Capitales, drapeaux &amp; cartes du monde</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,13 +18,13 @@
   </div>
 
   <header class="site-header">
-    <div class="logo">🌍 <span>Capitales du Monde</span></div>
+    <div class="logo">🌍 <span>GéoFlash</span></div>
   </header>
 
   <main>
     <section id="screen-home" class="screen">
-      <h1 class="hero-title">Apprends les capitales<br>du monde entier !</h1>
-      <p class="hero-sub">Des flash cards ludiques avec répétition espacée 🧠</p>
+      <h1 class="hero-title">Apprends la géographie<br>du monde entier !</h1>
+      <p class="hero-sub">Capitales, drapeaux et cartes — avec répétition espacée 🧠</p>
 
       <div class="stats-pills">
         <div class="pill"><span id="stat-success">–</span><small>% réussite</small></div>
@@ -64,6 +64,7 @@
       <div class="panel">
         <h2 class="panel-title">📚 Taille de la session</h2>
         <div class="chip-row" id="size-options">
+          <button class="chip" data-size="5">5</button>
           <button class="chip" data-size="10">10</button>
           <button class="chip selected" data-size="15">15</button>
           <button class="chip" data-size="25">25</button>
@@ -74,7 +75,6 @@
       <p id="home-notice" class="notice" hidden></p>
 
       <button id="start-btn" class="btn-primary big">🚀 Commencer</button>
-      <button id="reset-btn" class="btn-ghost">🗑️ Réinitialiser ma progression</button>
     </section>
 
     <section id="screen-game" class="screen" hidden>
@@ -96,18 +96,20 @@
               <img class="card-flag-img" id="card-flag-img-front" alt="Drapeau" hidden>
               <span class="card-flag-emoji" id="card-flag-front">🗺️</span>
             </div>
+            <div class="card-map" id="card-map-front" hidden></div>
             <div class="card-label" id="card-question-label"></div>
             <div class="card-value" id="card-question"></div>
             <div class="flip-hint">👆 Clique pour révéler la réponse</div>
           </div>
           <div class="flip-face flip-back">
             <div class="badge" id="card-badge-back"></div>
-            <div class="card-flag">
-              <img class="card-flag-img" id="card-flag-img-back" alt="Drapeau" hidden>
-              <span class="card-flag-emoji" id="card-flag-back"></span>
-            </div>
             <div class="card-label" id="card-answer-label"></div>
             <div class="card-value answer" id="card-answer"></div>
+            <div class="country-media">
+              <img class="country-flag" id="country-flag" alt="Drapeau" hidden>
+              <div class="country-map" id="country-map" hidden></div>
+            </div>
+            <div class="country-info" id="country-info" hidden></div>
           </div>
         </div>
       </div>
@@ -135,25 +137,17 @@
     </section>
   </main>
 
-  <div id="reset-modal" class="modal" hidden>
-    <div class="modal-box">
-      <h3>🗑️ Tout réinitialiser ?</h3>
-      <p>Ta progression (révisions, statistiques) sera définitivement effacée.</p>
-      <div class="modal-actions">
-        <button id="modal-cancel" class="btn-ghost">Annuler</button>
-        <button id="modal-confirm" class="btn-primary danger">Effacer</button>
-      </div>
-    </div>
-  </div>
-
   <canvas id="confetti"></canvas>
 
   <script src="js/core/utils.js"></script>
   <script src="js/core/storage.js"></script>
   <script src="js/core/srs.js"></script>
   <script src="js/data/countries.js"></script>
+  <script src="js/data/countryInfo.js"></script>
+  <script src="js/data/world.js"></script>
   <script src="js/decks/capitals.js"></script>
   <script src="js/decks/flags.js"></script>
+  <script src="js/decks/world.js"></script>
   <script src="js/ui/confetti.js"></script>
   <script src="js/ui/home.js"></script>
   <script src="js/ui/game.js"></script>
