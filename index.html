@@ -32,6 +32,10 @@
         <div class="pill"><span id="stat-learned">0</span><small>cartes apprises</small></div>
       </div>
 
+      <div class="home-actions">
+        <button id="stats-btn" class="btn-ghost">📊 Statistiques</button>
+      </div>
+
       <div class="panel">
         <h2 class="panel-title">📅 Révisions</h2>
         <p class="review-line">🃏 <strong id="review-due">0</strong> carte(s) à réviser maintenant</p>
@@ -69,6 +73,9 @@
           <button class="chip selected" data-size="15">15</button>
           <button class="chip" data-size="25">25</button>
           <button class="chip" data-size="all">Tout</button>
+        </div>
+        <div class="chip-row review-row">
+          <button id="review-btn" class="chip" disabled>🔄 Révision</button>
         </div>
       </div>
 
@@ -135,6 +142,69 @@
       </div>
       <div id="wrong-list"></div>
     </section>
+
+    <section id="screen-stats" class="screen" hidden>
+      <div class="stats-top">
+        <button id="stats-back-btn" class="btn-ghost small">← Accueil</button>
+        <h1 class="stats-title">📊 Statistiques</h1>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">Filtres</h2>
+        <div class="chip-row" id="stats-deck-filter"></div>
+        <div class="chip-row stats-period-row" id="stats-period-filter">
+          <button class="chip" data-stats-period="7">7 jours</button>
+          <button class="chip selected" data-stats-period="30">30 jours</button>
+          <button class="chip" data-stats-period="all">Tout</button>
+        </div>
+      </div>
+
+      <div class="stats-empty" id="stats-empty" hidden>
+        <p>Joue ta première session pour voir tes statistiques ! 📈</p>
+      </div>
+
+      <div id="stats-content">
+        <div class="stats-summary">
+          <div class="pill"><span id="stats-rate">–</span><small>% réussite</small></div>
+          <div class="pill"><span id="stats-attempts">0</span><small>tentatives</small></div>
+          <div class="pill"><span id="stats-learned">0</span><small>cartes apprises</small></div>
+        </div>
+
+        <div class="panel">
+          <div class="streak-card">
+            <span class="streak-flame">🔥</span>
+            <div class="streak-current">
+              <span class="streak-value" id="stat-streak">0</span>
+              <small>jour(s) de suite</small>
+            </div>
+            <span class="streak-best">Record : <strong id="stat-streak-best">0</strong></span>
+          </div>
+        </div>
+
+        <div class="panel stat-chart-card">
+          <h2 class="panel-title">📈 Taux de réussite</h2>
+          <div class="chart-holder" id="chart-success"></div>
+        </div>
+
+        <div class="panel stat-chart-card">
+          <h2 class="panel-title">🏃 Activité quotidienne</h2>
+          <div class="chart-holder" id="chart-activity"></div>
+        </div>
+
+        <div class="panel stat-chart-card">
+          <h2 class="panel-title">🧠 Cartes apprises</h2>
+          <div class="chart-holder" id="chart-learned"></div>
+        </div>
+
+        <div class="panel stat-chart-card">
+          <h2 class="panel-title">🗂️ Répartition par intervalle</h2>
+          <div class="donut-row">
+            <div class="chart-holder donut-holder" id="chart-srs"></div>
+            <div class="donut-legend" id="srs-legend"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <canvas id="confetti"></canvas>
@@ -152,6 +222,8 @@
   <script src="js/ui/home.js"></script>
   <script src="js/ui/game.js"></script>
   <script src="js/ui/end.js"></script>
+  <script src="js/core/charts.js"></script>
+  <script src="js/ui/stats.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

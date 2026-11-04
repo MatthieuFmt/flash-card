@@ -4,6 +4,8 @@ FC.storage = (function () {
   const U = FC.utils;
   const STATS_KEY = "flashcards.stats.v1";
   const SRS_KEY = "flashcards.srs.v2";
+  const HISTORY_KEY = "flashcards.history.v1";
+  const HISTORY_MAX_DAYS = 400;
   const LEGACY_KEYS = ["capitales.leitner.v1", "capitales.srs.v1", "capitales.stats.v1"];
   const DAY = 86400000;
 
@@ -60,6 +62,7 @@ FC.storage = (function () {
     U.loadJSON(STATS_KEY, {})
   );
   const srs = U.loadJSON(SRS_KEY, {});
+  const history = U.loadJSON(HISTORY_KEY, {});
 
   function saveStats() {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
@@ -69,15 +72,70 @@ FC.storage = (function () {
     localStorage.setItem(SRS_KEY, JSON.stringify(srs));
   }
 
+  function saveHistory() {
+    const keys = Object.keys(history).sort();
+    while (keys.length > HISTORY_MAX_DAYS) {
+      delete history[keys.shift()];
+    }
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  }
+
+  function dayKey(d) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+
+  function dayEntry(key) {
+    if (!history[key]) {
+      history[key] = { totals: { attempts: 0, correct: 0, sessions: 0, learned: 0 }, decks: {} };
+    }
+    return history[key];
+  }
+
+  function deckEntry(key, deckId) {
+    const entry = dayEntry(key);
+    if (!entry.decks[deckId]) {
+      entry.decks[deckId] = { attempts: 0, correct: 0, sessions: 0, learned: 0 };
+    }
+    return entry.decks[deckId];
+  }
+
+  function recordAnswer(deckId, correct, wasLearned) {
+    const key = dayKey(new Date());
+    const totals = dayEntry(key).totals;
+    const deck = deckEntry(key, deckId);
+    totals.attempts++;
+    deck.attempts++;
+    if (correct) {
+      totals.correct++;
+      deck.correct++;
+    }
+    if (wasLearned) {
+      totals.learned++;
+      deck.learned++;
+    }
+    saveHistory();
+  }
+
+  function recordSession(deckId) {
+    const key = dayKey(new Date());
+    dayEntry(key).totals.sessions++;
+    deckEntry(key, deckId).sessions++;
+    saveHistory();
+  }
+
   function reset() {
     for (const k of Object.keys(srs)) delete srs[k];
     stats.attempts = 0;
     stats.correct = 0;
     stats.sessions = 0;
+    for (const k of Object.keys(history)) delete history[k];
     saveSRS();
     saveStats();
+    localStorage.removeItem(HISTORY_KEY);
     LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
   }
 
-  return { stats, srs, saveStats, saveSRS, reset };
+  return { stats, srs, history, saveStats, saveSRS, saveHistory, recordAnswer, recordSession, reset };
 })();

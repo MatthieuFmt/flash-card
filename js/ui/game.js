@@ -39,7 +39,10 @@ FC.ui.game = (function () {
     const cards = [];
     for (const c of countries) {
       for (const dir of dirs) {
-        if (FC.srs.isDue(deck().id, c.iso, dir)) cards.push({ country: c, dir: dir });
+        const st = FC.srs.getState(deck().id, c.iso, dir);
+        if (st.due > Date.now()) continue;
+        if (FC.settings.review && st.reps < 1) continue;
+        cards.push({ country: c, dir: dir });
       }
     }
     const shuffled = U.shuffle(cards);
@@ -48,7 +51,7 @@ FC.ui.game = (function () {
         FC.srs.getState(deck().id, a.country.iso, a.dir).due -
         FC.srs.getState(deck().id, b.country.iso, b.dir).due
     );
-    const quota = FC.settings.size === "all" ? shuffled.length : FC.settings.size;
+    const quota = FC.settings.size === "all" || FC.settings.review ? shuffled.length : FC.settings.size;
     return shuffled.slice(0, quota);
   }
 
@@ -63,6 +66,7 @@ FC.ui.game = (function () {
     }
     FC.storage.stats.sessions++;
     FC.storage.saveStats();
+    FC.storage.recordSession(deck().id);
     results = {};
     answered = 0;
     sessionCorrect = 0;
@@ -246,6 +250,7 @@ FC.ui.game = (function () {
     const item = queue.shift();
     if (!item) return;
     const state = FC.srs.getState(deck().id, item.country.iso, item.dir);
+    const wasLearned = state.reps < 1 && grade >= 1;
     FC.srs.schedule(state, grade);
     FC.srs.setState(deck().id, item.country.iso, item.dir, state);
 
@@ -253,6 +258,7 @@ FC.ui.game = (function () {
     stats.attempts++;
     if (grade >= 2) stats.correct++;
     FC.storage.saveStats();
+    FC.storage.recordAnswer(deck().id, grade >= 2, wasLearned);
 
     results[`${item.country.iso}|${item.dir}`] = { item: item, grade: grade };
     answered++;

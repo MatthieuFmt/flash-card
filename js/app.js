@@ -8,17 +8,21 @@ window.FC = window.FC || {};
     deck: "capitals",
     direction: "pc",
     continent: "all",
-    size: 15
+    size: 15,
+    review: false
   };
 
   function init() {
     FC.ui.home.init();
     FC.ui.game.init();
+    FC.ui.stats.init();
 
     $("#start-btn").addEventListener("click", FC.ui.game.startSession);
     $("#replay-btn").addEventListener("click", FC.ui.game.startSession);
     $("#home-btn").addEventListener("click", FC.ui.end.goHome);
     $("#quit-btn").addEventListener("click", FC.ui.end.goHome);
+    $("#stats-btn").addEventListener("click", FC.ui.stats.show);
+    $("#stats-back-btn").addEventListener("click", FC.ui.stats.close);
 
     FC.ui.home.renderHomeStats();
   }

@@ -98,12 +98,17 @@ FC.ui.home = (function () {
         (!deck.available || deck.available(c))
     );
     let due = 0;
+    let learnedDue = 0;
     let nextDue = Infinity;
     for (const c of countries) {
       for (const dir of dirs) {
         const st = FC.srs.getState(deck.id, c.iso, dir);
-        if (st.due <= Date.now()) due++;
-        else if (st.due < nextDue) nextDue = st.due;
+        if (st.due <= Date.now()) {
+          due++;
+          if (st.reps >= 1) learnedDue++;
+        } else if (st.due < nextDue) {
+          nextDue = st.due;
+        }
       }
     }
     $("#review-due").textContent = due;
@@ -111,6 +116,11 @@ FC.ui.home = (function () {
       nextDue === Infinity
         ? "⏳ Aucune révision planifiée"
         : `⏳ Prochaine révision : dans ${U.humanize(nextDue - Date.now())}`;
+
+    const reviewBtn = $("#review-btn");
+    reviewBtn.textContent = learnedDue > 0 ? `🔄 Révision (${learnedDue})` : "🔄 Révision";
+    reviewBtn.disabled = learnedDue === 0;
+    reviewBtn.classList.toggle("selected", FC.settings.review);
   }
 
   function nextReviewText() {
@@ -142,6 +152,14 @@ FC.ui.home = (function () {
     });
     wireOptions("#size-options", "size", (v) => {
       FC.settings.size = v === "all" ? "all" : parseInt(v, 10);
+      FC.settings.review = false;
+      $("#review-btn").classList.remove("selected");
+    });
+    $("#review-btn").addEventListener("click", () => {
+      FC.settings.review = true;
+      $$("#size-options button").forEach((b) => b.classList.remove("selected"));
+      $("#review-btn").classList.add("selected");
+      FC.ui.game.startSession();
     });
   }
 
