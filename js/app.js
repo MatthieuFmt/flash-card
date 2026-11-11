@@ -16,6 +16,7 @@ window.FC = window.FC || {};
     FC.ui.home.init();
     FC.ui.game.init();
     FC.ui.stats.init();
+    FC.ui.duel.init();
 
     $("#start-btn").addEventListener("click", FC.ui.game.startSession);
     $("#replay-btn").addEventListener("click", FC.ui.game.startSession);
@@ -23,6 +24,7 @@ window.FC = window.FC || {};
     $("#quit-btn").addEventListener("click", FC.ui.end.goHome);
     $("#stats-btn").addEventListener("click", FC.ui.stats.show);
     $("#stats-back-btn").addEventListener("click", FC.ui.stats.close);
+    $("#duel-btn").addEventListener("click", FC.ui.duel.showSetup);
 
     FC.ui.home.renderHomeStats();
   }

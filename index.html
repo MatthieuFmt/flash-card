@@ -33,6 +33,7 @@
       </div>
 
       <div class="home-actions">
+        <button id="duel-btn" class="btn-ghost">⚔️ Duel 2 joueurs</button>
         <button id="stats-btn" class="btn-ghost">📊 Statistiques</button>
       </div>
 
@@ -205,6 +206,105 @@
         </div>
       </div>
     </section>
+    <section id="screen-duel-setup" class="screen" hidden>
+      <div class="stats-top">
+        <button id="duel-back-btn" class="btn-ghost small">← Accueil</button>
+        <h1 class="stats-title">⚔️ Duel 2 joueurs</h1>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">👥 Joueurs</h2>
+        <div class="duel-names">
+          <label class="duel-name-field">
+            <span>🟥 Joueur 1</span>
+            <input id="duel-name-j1" type="text" maxlength="14" placeholder="Joueur 1">
+          </label>
+          <label class="duel-name-field">
+            <span>🟦 Joueur 2</span>
+            <input id="duel-name-j2" type="text" maxlength="14" placeholder="Joueur 2">
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">🔢 Nombre de manches</h2>
+        <div class="chip-row" id="duel-rounds-options">
+          <button class="chip" data-duel-rounds="5">5</button>
+          <button class="chip selected" data-duel-rounds="10">10</button>
+          <button class="chip" data-duel-rounds="15">15</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">❓ Comment jouer ?</h2>
+        <ul class="duel-help">
+          <li>Un drapeau s'affiche : le premier qui buzze a le droit de répondre.</li>
+          <li>🟥 Touche <strong>A</strong> ou moitié gauche — 🟦 Touche <strong>L</strong> ou moitié droite.</li>
+          <li>Le joueur tape le nom du pays (les petites fautes sont pardonnées).</li>
+          <li>Bonne réponse = 1 point. Mauvaise réponse = l'autre joueur peut tenter sa chance !</li>
+        </ul>
+      </div>
+
+      <button id="duel-start-btn" class="btn-primary big">🚀 C'est parti !</button>
+    </section>
+
+    <section id="screen-duel" class="screen" hidden>
+      <div class="game-top">
+        <button id="duel-quit-btn" class="btn-ghost small">✕ Quitter</button>
+        <div class="progress-info" id="duel-round">Manche 1 / 10</div>
+        <div class="score-pills">
+          <span class="score duel-score-j1" id="duel-score-j1">Joueur 1 : 0</span>
+          <span class="score duel-score-j2" id="duel-score-j2">Joueur 2 : 0</span>
+        </div>
+      </div>
+
+      <div class="duel-flag-wrap">
+        <img id="duel-flag" class="duel-flag" alt="Drapeau">
+        <p class="duel-question">Quel est ce pays ?</p>
+      </div>
+
+      <div id="duel-buzzer" class="duel-buzzer active">
+        <button id="duel-zone-j1" class="duel-zone z1">
+          <span class="duel-zone-key">A</span>
+          <span class="duel-zone-name" id="duel-zone-name-j1">Joueur 1</span>
+        </button>
+        <button id="duel-zone-j2" class="duel-zone z2">
+          <span class="duel-zone-key">L</span>
+          <span class="duel-zone-name" id="duel-zone-name-j2">Joueur 2</span>
+        </button>
+      </div>
+
+      <div id="duel-answer-area" class="panel" hidden>
+        <p class="duel-input-label" id="duel-input-label"></p>
+        <div class="duel-input-row">
+          <input id="duel-input" type="text" autocomplete="off" placeholder="Écris le pays…">
+          <button id="duel-validate-btn" class="btn-primary small">Valider</button>
+        </div>
+        <div id="duel-suggestions" class="duel-suggestions"></div>
+      </div>
+
+      <div id="duel-feedback" class="duel-feedback" hidden>
+        <p class="duel-feedback-text" id="duel-feedback-text"></p>
+        <p class="duel-answer-reveal" id="duel-answer-reveal" hidden>
+          <span class="duel-answer-flag" id="duel-answer-flag"></span>
+          <strong id="duel-answer-name"></strong>
+        </p>
+      </div>
+      <div class="duel-next-row">
+        <button id="duel-next-btn" class="btn-primary" hidden>Manche suivante →</button>
+      </div>
+    </section>
+
+    <section id="screen-duel-end" class="screen" hidden>
+      <div class="end-emoji" id="duel-end-emoji">🏆</div>
+      <h2 id="duel-end-title">Joueur 1 remporte le duel !</h2>
+      <div class="duel-end-names" id="duel-end-names">Joueur 1 vs Joueur 2</div>
+      <div class="end-score" id="duel-end-score">5 — 3</div>
+      <div class="end-actions">
+        <button id="duel-end-rematch-btn" class="btn-primary big">🔄 Revanche</button>
+        <button id="duel-end-home-btn" class="btn-ghost">🏠 Accueil</button>
+      </div>
+    </section>
   </main>
 
   <canvas id="confetti"></canvas>
@@ -224,6 +324,7 @@
   <script src="js/ui/end.js"></script>
   <script src="js/core/charts.js"></script>
   <script src="js/ui/stats.js"></script>
+  <script src="js/ui/duel.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

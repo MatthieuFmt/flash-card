@@ -44,6 +44,36 @@ FC.utils = (function () {
     }
   }
 
+  function normalizeText(s) {
+    return (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function levenshtein(a, b) {
+    if (a === b) return 0;
+    const m = a.length;
+    const n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    let prev = new Array(n + 1);
+    let curr = new Array(n + 1);
+    for (let j = 0; j <= n; j++) prev[j] = j;
+    for (let i = 1; i <= m; i++) {
+      curr[0] = i;
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+      }
+      const tmp = prev;
+      prev = curr;
+      curr = tmp;
+    }
+    return prev[n];
+  }
+
   function showScreen(id) {
     $$(".screen").forEach((s) => { s.hidden = true; });
     $(id).hidden = false;
@@ -125,5 +155,5 @@ FC.utils = (function () {
     "Océanie": "🌏"
   };
 
-  return { $, $$, shuffle, flagEmoji, flagUrl, humanize, loadJSON, showScreen, worldSvg, CONTINENT_EMOJI };
+  return { $, $$, shuffle, flagEmoji, flagUrl, humanize, loadJSON, showScreen, worldSvg, normalizeText, levenshtein, CONTINENT_EMOJI };
 })();
