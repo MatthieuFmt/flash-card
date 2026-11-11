@@ -30,9 +30,10 @@ FC.ui.game = (function () {
   }
 
   function buildQueue() {
+    const sel = FC.settings.continents;
     const countries = FC.COUNTRIES.filter(
       (c) =>
-        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        (sel.length === 0 || sel.includes("all") || sel.includes(c.continent)) &&
         (!deck().available || deck().available(c))
     );
     const dirs = directionIds();

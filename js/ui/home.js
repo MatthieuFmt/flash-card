@@ -52,6 +52,39 @@ FC.ui.home = (function () {
     }
   }
 
+  function continentFilter(c) {
+    const sel = FC.settings.continents;
+    return sel.length === 0 || sel.includes("all") || sel.includes(c.continent);
+  }
+
+  function syncContinentButtons() {
+    const sel = FC.settings.continents;
+    $$("#continent-options button").forEach((b) =>
+      b.classList.toggle("selected", sel.includes(b.dataset.continent))
+    );
+  }
+
+  function wireContinentOptions() {
+    $$("#continent-options button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.continent;
+        if (id === "all") {
+          FC.settings.continents = ["all"];
+        } else {
+          let sel = FC.settings.continents.filter((c) => c !== "all");
+          if (sel.includes(id)) {
+            sel = sel.filter((c) => c !== id);
+          } else {
+            sel.push(id);
+          }
+          FC.settings.continents = sel.length ? sel : ["all"];
+        }
+        syncContinentButtons();
+        renderHomeStats();
+      });
+    });
+  }
+
   function renderDirectionOptions() {
     const deck = currentDeck();
     const container = $("#direction-options");
@@ -94,7 +127,7 @@ FC.ui.home = (function () {
     const dirs = currentDirectionIds();
     const countries = FC.COUNTRIES.filter(
       (c) =>
-        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        continentFilter(c) &&
         (!deck.available || deck.available(c))
     );
     let due = 0;
@@ -128,7 +161,7 @@ FC.ui.home = (function () {
     const dirs = currentDirectionIds();
     const countries = FC.COUNTRIES.filter(
       (c) =>
-        (FC.settings.continent === "all" || c.continent === FC.settings.continent) &&
+        continentFilter(c) &&
         (!deck.available || deck.available(c))
     );
     let nextDue = Infinity;
@@ -146,10 +179,7 @@ FC.ui.home = (function () {
   function init() {
     renderDeckOptions();
     renderDirectionOptions();
-    wireOptions("#continent-options", "continent", (v) => {
-      FC.settings.continent = v;
-      renderHomeStats();
-    });
+    wireContinentOptions();
     wireOptions("#size-options", "size", (v) => {
       FC.settings.size = v === "all" ? "all" : parseInt(v, 10);
       FC.settings.review = false;

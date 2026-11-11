@@ -5,9 +5,9 @@ window.FC = window.FC || {};
   const { $ } = U;
 
   FC.settings = {
-    deck: "capitals",
-    direction: "pc",
-    continent: "all",
+    deck: "flags",
+    direction: "fp",
+    continents: ["all"],
     size: 15,
     review: false
   };

@@ -176,16 +176,16 @@ main {
 
 .deck-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
 }
 
 .deck-card {
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 14px 10px;
-  border-radius: 16px;
+  padding: 8px 6px;
+  border-radius: 12px;
   border: 2px solid #334155;
   background: rgba(15, 23, 42, 0.55);
   color: var(--ink);
@@ -197,8 +197,8 @@ main {
 
 .deck-card .deck-icon {
   display: block;
-  font-size: 1.7rem;
-  margin-bottom: 4px;
+  font-size: 1.2rem;
+  margin-bottom: 2px;
 }
 
 .deck-card.selected {
@@ -693,7 +693,7 @@ main {
 }
 
 @media (max-width: 520px) {
-  .hero-title { font-size: 1.9rem; }
+  .hero-title { font-size: 1.2rem; }
   .flip-card { height: 300px; }
   .card-value { font-size: 1.5rem; }
   .card-flag { font-size: 3.6rem; }
