@@ -7,9 +7,11 @@ FC.ui.duel = (function () {
 
   const KEY_J1 = "a";
   const KEY_J2 = "l";
+  const ANSWER_TIME_S = 40;
 
   let names = { j1: "Joueur 1", j2: "Joueur 2" };
   let rounds = 10;
+  let continents = ["all"];
   let countries = [];
   let roundIndex = 0;
   let scores = { j1: 0, j2: 0 };
@@ -17,10 +19,18 @@ FC.ui.duel = (function () {
   let roundBuzzer = null;
   let currentCountry = null;
   let answerLocked = false;
+  let timerId = null;
+  let timeLeft = 0;
+
+  function continentOk(c) {
+    return continents.length === 0 || continents.includes("all") || continents.includes(c.continent);
+  }
 
   function flagsCountries() {
     const deck = FC.decks.flags;
-    return FC.COUNTRIES.filter((c) => c.name && (!deck.available || deck.available(c)));
+    return FC.COUNTRIES.filter(
+      (c) => c.name && continentOk(c) && (!deck.available || deck.available(c))
+    );
   }
 
   function buildPool() {
@@ -59,6 +69,7 @@ FC.ui.duel = (function () {
   }
 
   function quit() {
+    clearTimer();
     buzzed = null;
     roundBuzzer = null;
     answerLocked = false;
@@ -66,6 +77,7 @@ FC.ui.duel = (function () {
   }
 
   function renderRound() {
+    clearTimer();
     currentCountry = countries[roundIndex];
     buzzed = null;
     roundBuzzer = null;
@@ -100,6 +112,7 @@ FC.ui.duel = (function () {
     $("#duel-input").value = "";
     $("#duel-suggestions").innerHTML = "";
     $("#duel-input").focus();
+    startTimer();
   }
 
   function correctNames() {
@@ -130,7 +143,74 @@ FC.ui.duel = (function () {
     }
   }
 
+  function renderTimer() {
+    $("#duel-timer-text").textContent = Math.ceil(timeLeft) + "s";
+    $("#duel-timer-fill").style.width = `${(timeLeft / ANSWER_TIME_S) * 100}%`;
+    $("#duel-timer").classList.toggle("warning", timeLeft <= 10);
+  }
+
+  function tickTimer() {
+    timeLeft -= 0.1;
+    if (timeLeft <= 0) {
+      clearTimer();
+      giveUp("timeout");
+    } else {
+      renderTimer();
+    }
+  }
+
+  function startTimer() {
+    clearTimer();
+    timeLeft = ANSWER_TIME_S;
+    renderTimer();
+    timerId = setInterval(tickTimer, 100);
+  }
+
+  function clearTimer() {
+    if (timerId) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  function giveUp(reason) {
+    if (answerLocked || !buzzed || !currentCountry) return;
+    if (buzzed === roundBuzzer) {
+      const first = roundBuzzer;
+      const other = buzzed === "j1" ? "j2" : "j1";
+      buzzed = other;
+      const buzzerEl = $("#duel-buzzer");
+      buzzerEl.classList.remove("j1", "j2");
+      buzzerEl.classList.add(other);
+      $("#duel-input-label").textContent =
+        reason === "wrong"
+          ? `Raté ! ${names[other]}, à toi de trouver le pays :`
+          : `${names[other]}, à toi de trouver le pays :`;
+      $("#duel-input").value = "";
+      $("#duel-suggestions").innerHTML = "";
+      let msg;
+      if (reason === "idk") {
+        msg = `${names[first]} ne sait pas… ${names[other]} peut tenter sa chance !`;
+      } else if (reason === "timeout") {
+        msg = `⏳ Temps écoulé ! ${names[other]} peut tenter sa chance !`;
+      } else {
+        msg = `Ce n'est pas ça… ${names[other]} peut tenter sa chance !`;
+      }
+      showFeedback(msg, false);
+      startTimer();
+      $("#duel-input").focus();
+      return;
+    }
+    endRound();
+    showFeedback(
+      reason === "timeout" ? "⏳ Temps écoulé, personne ne marque !" : "Personne ne marque !",
+      false,
+      currentCountry.name
+    );
+  }
+
   function endRound() {
+    clearTimer();
     answerLocked = true;
     $("#duel-answer-area").hidden = true;
     $("#duel-buzzer").classList.remove("active", "j1", "j2");
@@ -143,6 +223,7 @@ FC.ui.duel = (function () {
     if (!guess) return;
     const ok = correctNames().some((n) => matches(n, guess));
     if (ok) {
+      clearTimer();
       scores[buzzed]++;
       updateScores();
       endRound();
@@ -150,21 +231,7 @@ FC.ui.duel = (function () {
       FC.ui.confetti.burst();
       return;
     }
-    if (buzzed === roundBuzzer) {
-      const other = buzzed === "j1" ? "j2" : "j1";
-      buzzed = other;
-      const buzzerEl = $("#duel-buzzer");
-      buzzerEl.classList.remove("j1", "j2");
-      buzzerEl.classList.add(other);
-      $("#duel-input-label").textContent = `Raté ! ${names[other]}, à toi de trouver le pays :`;
-      $("#duel-input").value = "";
-      $("#duel-suggestions").innerHTML = "";
-      showFeedback(`Ce n'est pas ça… ${names[other]} peut tenter sa chance !`, false);
-      $("#duel-input").focus();
-      return;
-    }
-    endRound();
-    showFeedback("Personne ne marque !", false, currentCountry.name);
+    giveUp("wrong");
   }
 
   function nextRound() {
@@ -185,23 +252,39 @@ FC.ui.duel = (function () {
     $("#duel-end-score").textContent = `${scores.j1} — ${scores.j2}`;
   }
 
+  function chooseSuggestion(btn) {
+    if (btn.classList.contains("picked")) return;
+    btn.classList.add("picked");
+    const name = btn.textContent;
+    $("#duel-input").value = name;
+    submitAnswer(name);
+  }
+
   function updateSuggestions() {
     const box = $("#duel-suggestions");
     box.innerHTML = "";
     const q = U.normalizeText($("#duel-input").value);
     if (!q) return;
-    const hits = flagsCountries()
-      .map((c) => c.name)
-      .filter((n) => U.normalizeText(n).includes(q))
-      .slice(0, 8);
-    for (const name of hits) {
+    const hits = [];
+    const seen = {};
+    for (const c of flagsCountries()) {
+      if (seen[c.name]) continue;
+      const names = [c.name].concat(c.aliases || []);
+      if (names.some((n) => U.normalizeText(n).includes(q))) {
+        seen[c.name] = true;
+        hits.push(c.name);
+      }
+    }
+    for (const name of hits.slice(0, 8)) {
       const btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "duel-suggestion";
       btn.textContent = name;
-      btn.addEventListener("click", () => {
-        $("#duel-input").value = name;
-        submitAnswer(name);
+      btn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        chooseSuggestion(btn);
       });
+      btn.addEventListener("click", () => chooseSuggestion(btn));
       box.appendChild(btn);
     }
   }
@@ -229,8 +312,35 @@ FC.ui.duel = (function () {
     });
   }
 
+  function syncContinentButtons() {
+    $$("#duel-continent-options button").forEach((b) =>
+      b.classList.toggle("selected", continents.includes(b.dataset.continent))
+    );
+  }
+
+  function wireContinentOptions() {
+    $$("#duel-continent-options button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.continent;
+        if (id === "all") {
+          continents = ["all"];
+        } else {
+          let sel = continents.filter((c) => c !== "all");
+          if (sel.includes(id)) {
+            sel = sel.filter((c) => c !== id);
+          } else {
+            sel.push(id);
+          }
+          continents = sel.length ? sel : ["all"];
+        }
+        syncContinentButtons();
+      });
+    });
+  }
+
   function init() {
     wireRoundsChips();
+    wireContinentOptions();
     $("#duel-start-btn").addEventListener("click", start);
     $("#duel-quit-btn").addEventListener("click", quit);
     $("#duel-back-btn").addEventListener("click", quit);
@@ -238,13 +348,32 @@ FC.ui.duel = (function () {
     $("#duel-end-rematch-btn").addEventListener("click", rematch);
     $("#duel-next-btn").addEventListener("click", nextRound);
     $("#duel-validate-btn").addEventListener("click", () => submitAnswer());
+    $("#duel-idk-btn").addEventListener("click", () => giveUp("idk"));
     $("#duel-zone-j1").addEventListener("click", () => buzz("j1"));
     $("#duel-zone-j2").addEventListener("click", () => buzz("j2"));
     $("#duel-input").addEventListener("input", updateSuggestions);
     $("#duel-input").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        submitAnswer();
+        const picked = $("#duel-suggestions .duel-suggestion.highlight");
+        if (picked) {
+          chooseSuggestion(picked);
+        } else {
+          submitAnswer();
+        }
+      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const btns = $$("#duel-suggestions .duel-suggestion");
+        if (!btns.length) return;
+        e.preventDefault();
+        let idx = btns.findIndex((b) => b.classList.contains("highlight"));
+        if (e.key === "ArrowDown") {
+          idx = idx < 0 ? 0 : Math.min(idx + 1, btns.length - 1);
+        } else {
+          idx = idx < 0 ? btns.length - 1 : Math.max(idx - 1, 0);
+        }
+        btns.forEach((b) => b.classList.remove("highlight"));
+        btns[idx].classList.add("highlight");
+        btns[idx].scrollIntoView({ block: "nearest" });
       }
     });
     document.addEventListener("keydown", onKey);

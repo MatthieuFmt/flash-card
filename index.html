@@ -235,11 +235,26 @@
       </div>
 
       <div class="panel">
+        <h2 class="panel-title">🗺️ Continent</h2>
+        <div class="chip-row" id="duel-continent-options">
+          <button class="chip selected" data-continent="all">Tous</button>
+          <button class="chip" data-continent="Afrique">Afrique</button>
+          <button class="chip" data-continent="Amérique du Nord">Amérique du Nord</button>
+          <button class="chip" data-continent="Amérique du Sud">Amérique du Sud</button>
+          <button class="chip" data-continent="Asie">Asie</button>
+          <button class="chip" data-continent="Europe">Europe</button>
+          <button class="chip" data-continent="Océanie">Océanie</button>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2 class="panel-title">❓ Comment jouer ?</h2>
         <ul class="duel-help">
           <li>Un drapeau s'affiche : le premier qui buzze a le droit de répondre.</li>
           <li>🟥 Touche <strong>A</strong> ou moitié gauche — 🟦 Touche <strong>L</strong> ou moitié droite.</li>
           <li>Le joueur tape le nom du pays (les petites fautes sont pardonnées).</li>
+          <li>⏳ 40 secondes pour répondre après avoir buzzé.</li>
+          <li>🙈 « Je ne sais pas » ou temps écoulé : l'autre joueur peut tenter sa chance, sinon fin de manche.</li>
           <li>Bonne réponse = 1 point. Mauvaise réponse = l'autre joueur peut tenter sa chance !</li>
         </ul>
       </div>
@@ -274,10 +289,15 @@
       </div>
 
       <div id="duel-answer-area" class="panel" hidden>
+        <div class="duel-timer" id="duel-timer">
+          <div class="duel-timer-bar"><div id="duel-timer-fill"></div></div>
+          <span class="duel-timer-text" id="duel-timer-text">40s</span>
+        </div>
         <p class="duel-input-label" id="duel-input-label"></p>
         <div class="duel-input-row">
           <input id="duel-input" type="text" autocomplete="off" placeholder="Écris le pays…">
           <button id="duel-validate-btn" class="btn-primary small">Valider</button>
+          <button id="duel-idk-btn" class="btn-ghost small">🙈 Je ne sais pas</button>
         </div>
         <div id="duel-suggestions" class="duel-suggestions"></div>
       </div>

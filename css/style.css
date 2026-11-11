@@ -976,6 +976,7 @@ main {
 
 .duel-input-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -994,6 +995,41 @@ main {
 }
 
 .duel-input-row input:focus { border-color: var(--accent); }
+
+.duel-timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 440px;
+  margin: 0 auto 12px;
+}
+
+.duel-timer-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.duel-timer-bar #duel-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--green);
+  transition: width 0.1s linear, background 0.2s;
+}
+
+.duel-timer-text {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 44px;
+  text-align: right;
+  color: #cbd5e1;
+}
+
+.duel-timer.warning .duel-timer-bar #duel-timer-fill { background: var(--red); }
+
+.duel-timer.warning .duel-timer-text { color: var(--red); }
 
 .btn-primary.small {
   display: inline-block;
@@ -1023,6 +1059,12 @@ main {
 .duel-suggestion:hover {
   background: rgba(255, 255, 255, 0.14);
   transform: translateY(-1px);
+}
+
+.duel-suggestion.highlight {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .duel-feedback {
